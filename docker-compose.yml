@@ -33,22 +33,14 @@ services:
         - ./db_data:/var/lib/mysql
       restart: always
       environment:
-        MYSQL_ROOT_PASSWORD: sample_root_passward
-        MYSQL_DATABASE: test_phpmyadmin
-        MYSQL_USER: sample_user
-        MYSQL_PASSWORD: sample_pass
-          env_file:
-              - .env
+        MYSQL_ROOT_PASSWORD: 'password'
 
   # phpMyAdmin
     phpmyadmin:
-      container_name: test_phpmyadmin
       image: phpmyadmin/phpmyadmin
       environment:
-        - PMA_ARBITRARY=1
-        - PMA_HOSTS=mysql_host
-        - PMA_USER=root
-        - PMA_PASSWORD=root
+        - PMA_HOSTS: mysql
+      restart: always
       ports:
         - 8085:80
       depends_on:
@@ -65,3 +57,5 @@ services:
           MH_MAILDIR_PATH: /tmp
         volumes:
             - “./mailhog:/tmp”
+volumes:
+  db_data: {}

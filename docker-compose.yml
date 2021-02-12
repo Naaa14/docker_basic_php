@@ -1,10 +1,18 @@
-version: ‘3.8’
+version: ‘2’
 
 services:
+    # #PHP
+    # php-fpm:
+    #     build: ./php-fpm
+    #     container_name: php-fpm_docker_sample
+    #     working_dir: /application
+    #     volumes:
+    #         - ./html/myapp/web_app/public_html:/app
+    #         - ./php-fpm/php-ini-overrides.ini:/etc/php.d/php-ini-overrides.ini
+    
     # PHP Apache
     php-apache:
           build: ./php7.2
-          dockerfile: dockerfile
           ports:
             - "8080:80"
           volumes:
@@ -12,28 +20,21 @@ services:
           restart: always
           depends_on:
             - mysql
-            - php-fpm
-
-    #PHP
-    php-fpm:
-        build: ./php-fpm
-        container_name: php-fpm_docker_sample
-        working_dir: /application
-        volumes:
-            - ./html/myapp/web_app/public_html:/app
-            - ./php-fpm/php-ini-overrides.ini:/etc/php.d/php-ini-overrides.ini
+            # - php-fpm
 
     # MySQL
     mysql:
       build: ./mysql
-      ports:
-        - 3306:3306
+      dockerfile: dockerfile
+      # ports:
+      #   - 3306:3306
       volumes:
         - ./mysql/initdb.d:/docker-entrypoint-initdb.d
         - ./db_data:/var/lib/mysql
       restart: always
       environment:
         MYSQL_ROOT_PASSWORD: 'password'
+    
 
   # phpMyAdmin
     phpmyadmin:
@@ -57,5 +58,4 @@ services:
           MH_MAILDIR_PATH: /tmp
         volumes:
             - “./mailhog:/tmp”
-volumes:
-  db_data: {}
+

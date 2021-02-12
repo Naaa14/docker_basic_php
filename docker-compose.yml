@@ -1,0 +1,67 @@
+version: ‘3.8’
+
+services:
+    # PHP Apache
+    php-apache:
+          build: ./php7.2
+          dockerfile: dockerfile
+          ports:
+            - "8080:80"
+          volumes:
+            - ./html/myapp:/var/www/html
+          restart: always
+          depends_on:
+            - mysql
+            - php-fpm
+
+    #PHP
+    php-fpm:
+        build: ./php-fpm
+        container_name: php-fpm_docker_sample
+        working_dir: /application
+        volumes:
+            - ./html/myapp/web_app/public_html:/app
+            - ./php-fpm/php-ini-overrides.ini:/etc/php.d/php-ini-overrides.ini
+
+    # MySQL
+    mysql:
+      build: ./mysql
+      ports:
+        - 3306:3306
+      volumes:
+        - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+        - ./db_data:/var/lib/mysql
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: sample_root_passward
+        MYSQL_DATABASE: test_phpmyadmin
+        MYSQL_USER: sample_user
+        MYSQL_PASSWORD: sample_pass
+          env_file:
+              - .env
+
+  # phpMyAdmin
+    phpmyadmin:
+      container_name: test_phpmyadmin
+      image: phpmyadmin/phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+        - PMA_HOSTS=mysql_host
+        - PMA_USER=root
+        - PMA_PASSWORD=root
+      ports:
+        - 8085:80
+      depends_on:
+            - mysql
+
+    #MailHog
+    mailhog:
+        image: mailhog/mailhog
+        ports:
+            - “8025:8025”
+            - “1025:1025”
+        environment:
+          MH_STORAGE: maildir
+          MH_MAILDIR_PATH: /tmp
+        volumes:
+            - “./mailhog:/tmp”
